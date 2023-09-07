@@ -1,15 +1,19 @@
-use crate::{error::Error, scanner::Scanner, token::Token};
-use std::{error::Error as StdError, fs::read, io, path::Path, process, process::exit};
+use crate::{scanner::Scanner, token::Token};
+use std::{fs::read, io, path::Path, process::exit};
 
 pub struct Lox {
-    error: Option<Error>,
+    has_error: bool,
 }
 
 impl Lox {
+    pub fn new() -> Self {
+        Lox { has_error: false }
+    }
+
     pub fn start(&mut self, args: Vec<String>) {
         if args.len() > 2 {
             eprintln!("Usage: rustox [script]");
-            process::exit(1);
+            exit(1);
         } else if args.len() == 2 {
             self.run_file(args[1].clone());
         } else {
@@ -18,24 +22,11 @@ impl Lox {
         }
     }
 
-    pub fn run_file(&mut self, path: String) -> Result<(), Box<dyn StdError + 'static>> {
+    pub fn run_file(&mut self, path: String) {
         let file_path = Path::new(&path[..]);
-        let bytes: Vec<u8> = read(file_path)?;
-        let source = String::from_utf8(bytes)?;
-
-        match Self::run(source) {
-            Ok(tokens) => {
-                for token in tokens {
-                    println!("{}", token);
-                }
-            }
-            Err(e) => {
-                self.error(e.line(), e.message());
-                exit(1);
-            }
-        }
-
-        Ok(())
+        let bytes: Vec<u8> = read(file_path).unwrap();
+        let source = String::from_utf8(bytes).unwrap();
+        self.run(source);
     }
 
     pub fn run_prompt(&mut self) -> io::Result<()> {
@@ -45,15 +36,8 @@ impl Lox {
             match stdin.read_line(&mut buffer) {
                 Ok(2) => break,
                 Ok(n) => {
-                    match Self::run(buffer) {
-                        Ok(tokens) => {
-                            for token in tokens {
-                                println!("{}", token);
-                            }
-                        }
-                        Err(e) => self.error(e.line(), e.message()),
-                    }
-                    self.error = None
+                    self.run(buffer);
+                    self.has_error = false;
                 }
                 Err(e) => eprintln!("ERROR: {}", e),
             }
@@ -62,21 +46,23 @@ impl Lox {
         Ok(())
     }
 
-    fn run(source: String) -> Result<Vec<Token>, Error> {
+    fn run(&mut self, source: String) -> Vec<Token> {
         let mut scanner = Scanner::new(source);
-
-        match scanner.scan_tokens() {
-            Ok(tokens) => Ok(tokens),
-            Err(e) => Err(e),
-        }
+        let tokens = scanner.scan_tokens();
+        if let Some(_error) = scanner.error {
+            self.has_error = true;
+        };
+        tokens
     }
 
+    /*
     fn error(&mut self, line: usize, message: String) {
         self.report(line, "".to_string(), message);
     }
 
     fn report(&mut self, line: usize, where_happened: String, message: String) {
         eprintln!("[{line}] Error {where_happened}: {message}");
-        self.error = Some(Error::new(line, message));
+        self.has_error = Some(Error::new(line, message));
     }
+    */
 }

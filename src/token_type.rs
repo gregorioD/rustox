@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum TokenType {
     // Single-character tokens.
     LEFT_PAREN,
