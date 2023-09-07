@@ -26,7 +26,9 @@ impl Lox {
         let file_path = Path::new(&path[..]);
         let bytes: Vec<u8> = read(file_path).unwrap();
         let source = String::from_utf8(bytes).unwrap();
-        self.run(source);
+        for token in self.run(source) {
+            println!("{:#}", token);
+        }
     }
 
     pub fn run_prompt(&mut self) -> io::Result<()> {
@@ -36,7 +38,9 @@ impl Lox {
             match stdin.read_line(&mut buffer) {
                 Ok(2) => break,
                 Ok(n) => {
-                    self.run(buffer);
+                    for token in self.run(buffer) {
+                        println!("{:#}", token);
+                    }
                     self.has_error = false;
                 }
                 Err(e) => eprintln!("ERROR: {}", e),

@@ -84,7 +84,7 @@ impl Scanner {
 
         match c {
             '(' => self.addToken(TokenType::LEFT_PAREN, None),
-            ')' => self.addToken(TokenType::LEFT_PAREN, None),
+            ')' => self.addToken(TokenType::RIGHT_PAREN, None),
             '{' => self.addToken(TokenType::LEFT_BRACE, None),
             '}' => self.addToken(TokenType::RIGHT_BRACE, None),
             ',' => self.addToken(TokenType::COMMA, None),
@@ -138,7 +138,7 @@ impl Scanner {
                 if c.is_digit(10) {
                     self.number();
                 } else if Self::is_my_alphabetic(c) {
-                    todo!();
+                    self.identifier();
                 } else {
                     self.error(self.line, "Unexpected character".to_string());
                 }
