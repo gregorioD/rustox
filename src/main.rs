@@ -1,4 +1,5 @@
 mod error;
+mod expression;
 mod lox;
 mod scanner;
 mod token;
