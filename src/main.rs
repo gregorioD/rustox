@@ -4,6 +4,7 @@ mod lox;
 mod scanner;
 mod token;
 mod token_type;
+mod parser;
 use std::env;
 
 use lox::Lox;

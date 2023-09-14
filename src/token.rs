@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::token_type::TokenType;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Token {
     token_type: TokenType,
     lexeme: String,
@@ -10,7 +10,7 @@ pub struct Token {
     literal: Option<Literal>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Literal {
     String(String),
     Float(f32),
@@ -47,6 +47,10 @@ impl Token {
             line: line,
             literal: None,
         }
+    }
+
+    pub fn line(&self) -> usize {
+        self.line
     }
 
     pub fn lexeme(&self) -> String {

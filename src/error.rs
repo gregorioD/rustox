@@ -26,7 +26,7 @@ impl Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ERROR at {}: {})", self.line, self.message)
+        write!(f, "ERROR at {}: {})", self.line(), self.message)
     }
 }
 impl StdError for Error {

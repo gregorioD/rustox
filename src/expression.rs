@@ -1,15 +1,14 @@
-use crate::{
-    token::{Literal, Token},
-    token_type::TokenType,
-};
+use std::fmt::Display;
 
-struct Unary {
+use crate::{token::Token, token_type::TokenType};
+#[derive(Debug)]
+pub struct Unary {
     left: Token,
     expression: Box<Expression>,
 }
 
 impl Unary {
-    fn new(operator: Token, expression: Expression) -> Self {
+    pub fn new(operator: Token, expression: Expression) -> Self {
         match &operator.lexeme()[..] {
             "-" => {
                 return Unary {
@@ -30,21 +29,32 @@ impl Unary {
         }
     }
 }
-
-struct Binary {
+#[derive(Debug)]
+pub struct Binary {
     left: Box<Expression>,
     operator: Operator,
     right: Box<Expression>,
 }
 
-struct Grouping {
+impl Binary {
+    pub fn new(left: Expression, operator: Operator, right: Expression) -> Self {
+        Binary {
+            left: Box::new(left),
+            operator: operator,
+            right: Box::new(right),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Grouping {
     left_brace: char,
     expression: Box<Expression>,
     rigth_brace: char,
 }
 
 impl Grouping {
-    fn new(expression: Expression) -> Self {
+    pub fn new(expression: Expression) -> Self {
         Grouping {
             left_brace: '(',
             expression: Box::new(expression),
@@ -53,12 +63,13 @@ impl Grouping {
     }
 }
 
-struct Operator {
+#[derive(Debug)]
+pub struct Operator {
     token: Token,
 }
 
 impl Operator {
-    fn new(operator: Token) -> Self {
+    pub fn new(operator: Token) -> Self {
         match &operator.lexeme()[..] {
             "==" => return Operator { token: operator },
             "!=" => return Operator { token: operator },
@@ -78,12 +89,13 @@ impl Operator {
     }
 }
 
-struct LiteralExp {
+#[derive(Debug)]
+pub struct LiteralExp {
     literal_expression: Token,
 }
 
 impl LiteralExp {
-    fn new(token: Token) -> Self {
+    pub fn new(token: Token) -> Self {
         match token.token_type() {
             TokenType::NUMBER => {
                 return LiteralExp {
@@ -118,7 +130,8 @@ impl LiteralExp {
     }
 }
 
-enum Expression {
+#[derive(Debug)]
+pub enum Expression {
     LiteralExp(LiteralExp),
     Unary(Unary),
     Binary(Binary),

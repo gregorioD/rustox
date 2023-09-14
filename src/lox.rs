@@ -1,4 +1,4 @@
-use crate::{scanner::Scanner, token::Token};
+use crate::{expression::Expression, parser::Parser, scanner::Scanner, token::Token};
 use std::{fs::read, io, path::Path, process::exit};
 
 pub struct Lox {
@@ -26,9 +26,7 @@ impl Lox {
         let file_path = Path::new(&path[..]);
         let bytes: Vec<u8> = read(file_path).unwrap();
         let source = String::from_utf8(bytes).unwrap();
-        for token in self.run(source) {
-            println!("{:#}", token);
-        }
+        self.run(source);
     }
 
     pub fn run_prompt(&mut self) -> io::Result<()> {
@@ -37,10 +35,8 @@ impl Lox {
             let mut buffer = String::new();
             match stdin.read_line(&mut buffer) {
                 Ok(2) => break,
-                Ok(n) => {
-                    for token in self.run(buffer) {
-                        println!("{:#}", token);
-                    }
+                Ok(_n) => {
+                    self.run(buffer);
                     self.has_error = false;
                 }
                 Err(e) => eprintln!("ERROR: {}", e),
@@ -50,13 +46,15 @@ impl Lox {
         Ok(())
     }
 
-    fn run(&mut self, source: String) -> Vec<Token> {
+    fn run(&mut self, source: String) {
         let mut scanner = Scanner::new(source);
         let tokens = scanner.scan_tokens();
-        if let Some(_error) = scanner.error {
-            self.has_error = true;
-        };
-        tokens
+        let mut parser = Parser::new(tokens);
+
+        match parser.parse() {
+            Ok(expr) => println!("{:?}", expr),
+            Err(e) => eprintln!("{:?}", e),
+        }
     }
 
     /*
